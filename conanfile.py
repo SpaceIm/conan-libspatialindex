@@ -59,6 +59,8 @@ class LibspatialindexConan(ConanFile):
         self.cpp_info.libs = self._get_ordered_libs()
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.append("m")
+        if not self.options.shared and self.settings.compiler == "Visual Studio":
+            self.cpp_info.defines.append("SIDX_STATIC")
 
     def _get_ordered_libs(self):
         ordered_libs = ["spatialindex_c", "spatialindex"]
