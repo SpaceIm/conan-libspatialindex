@@ -36,14 +36,6 @@ class LibspatialindexConan(ConanFile):
     def build(self):
         for patch in self.conan_data["patches"][self.version]:
             tools.patch(**patch)
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
-                              "spatialindex-64", "spatialindex")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
-                              "spatialindex_c-64", "spatialindex_c")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
-                              "spatialindex-32", "spatialindex")
-        tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeLists.txt"),
-                              "spatialindex_c-32", "spatialindex_c")
         cmake = self._configure_cmake()
         cmake.build()
 
@@ -64,6 +56,19 @@ class LibspatialindexConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = ["spatialindex_c", "spatialindex"]
+        self.cpp_info.libs = self._get_ordered_libs()
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.append("m")
+
+    def _get_ordered_libs(self):
+        ordered_libs = ["spatialindex_c", "spatialindex"]
+        # With Visual Studio, libspatialindex adds -32 or -64 suffix depending on pointer size
+        if self.settings.compiler == "Visual Studio":
+            suffix = ""
+            libs = tools.collect_libs(self)
+            for lib in libs:
+                if "spatialindex_c" in lib:
+                    suffix = lib.split("spatialindex_c", 1)[1]
+                    break
+            ordered_libs = [lib + suffix for lib in ordered_libs]
+        return ordered_libs
