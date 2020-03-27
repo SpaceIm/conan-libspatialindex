@@ -12,3 +12,4 @@ set_property(TARGET test_package_c PROPERTY LINKER_LANGUAGE CXX)
 
 add_executable(test_package_cpp test_package.cpp)
 target_link_libraries(test_package_cpp ${CONAN_LIBS})
+set_property(TARGET test_package_cpp PROPERTY CXX_STANDARD 11)
