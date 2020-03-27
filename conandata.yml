@@ -10,3 +10,5 @@ patches:
       base_path: "source_subfolder"
     - patch_file: "patches/fix-mingw.patch"
       base_path: "source_subfolder"
+    - patch_file: "patches/fix-unknown-size-t.patch"
+      base_path: "source_subfolder"

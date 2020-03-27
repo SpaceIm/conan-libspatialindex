@@ -1,5 +1,7 @@
 #include <spatialindex/capi/sidx_api.h>
 
+#include <string.h>
+
 int main() {
   double min[] = {0.5, 0.5};
   double max[] = {0.5, 0.5};
