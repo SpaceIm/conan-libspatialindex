@@ -38,7 +38,7 @@ class LibspatialindexConan(ConanFile):
         os.rename(self.name + "-" + self.version, self._source_subfolder)
 
     def build(self):
-        for patch in self.conan_data["patches"][self.version]:
+        for patch in self.conan_data.get("patches", {}).get(self.version, []):
             tools.patch(**patch)
         cmake = self._configure_cmake()
         cmake.build()
@@ -63,6 +63,8 @@ class LibspatialindexConan(ConanFile):
         self.cpp_info.libs = self._get_ordered_libs()
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.append("m")
+        if not self.options.shared and self._stdcpp_library:
+            self.cpp_info.system_libs.append(self._stdcpp_library)
         if not self.options.shared and self.settings.compiler == "Visual Studio":
             self.cpp_info.defines.append("SIDX_STATIC")
 
@@ -78,3 +80,13 @@ class LibspatialindexConan(ConanFile):
                     break
             ordered_libs = [lib + suffix for lib in ordered_libs]
         return ordered_libs
+
+    @property
+    def _stdcpp_library(self):
+        libcxx = self.settings.get_safe("compiler.libcxx")
+        if libcxx in ("libstdc++", "libstdc++11"):
+            return "stdc++"
+        elif libcxx in ("libc++",):
+            return "c++"
+        else:
+            return False
